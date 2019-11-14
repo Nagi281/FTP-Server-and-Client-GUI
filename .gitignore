@@ -7,11 +7,19 @@
 # BlueJ files
 *.ctxt
 
+# Eclipse stuff
+.project
+.settings
+.classpath
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+#Folder to be ignored
+bin/
+_UPLOAD_/admin/*
+_UPLOAD_/user01/*
+src/testFTP/
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
