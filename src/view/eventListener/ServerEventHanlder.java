@@ -1,4 +1,4 @@
-package view.client;
+package view.eventListener;
 
 import controller.client.ClientPI;
 import com.google.gson.Gson;
@@ -28,6 +28,7 @@ public class ServerEventHanlder {
 	private JTextField tf_RemoteFile;
 	DefaultTreeModel modelDirs;
 	DefaultTreeModel modelFilesFolders;
+	private boolean isLogged = false;;
 
 	public ServerEventHanlder(ClientPI _clientPI) {
 		this.clientPI = _clientPI;
@@ -41,12 +42,16 @@ public class ServerEventHanlder {
 		this.treeFilesFolders = treeFilesFolders;
 	}
 
-	public void setTextField(JTextField tf_RemoteDir) {
+	public void setTextFieldRemoteDir(JTextField tf_RemoteDir) {
 		this.tf_RemoteDir = tf_RemoteDir;
 	}
 
 	public void setTextFieldRemoteFile(JTextField tf_RemoteFile) {
 		this.tf_RemoteFile = tf_RemoteFile;
+	}
+
+	public void setRemoteFilePath(String path) {
+		tf_RemoteFile.setText(path);
 	}
 
 	public HashMap<String, String> handleConnect(String host, String username, String password, String port) {
@@ -67,19 +72,16 @@ public class ServerEventHanlder {
 			message.put("error", "Port can't be empty!");
 			return message;
 		}
-		System.out.println(host);
-		System.out.println(username);
-		System.out.println(password);
-		System.out.println(port);
-		// if(this.clientPI == null) {
-		// System.out.println("client null");
-		// clientPI = new ClientPI();
-		// }
-		return this.clientPI.connect(host, username, password, port); 
-	} 
+		Config.print(host + " " + username + " " + password + " " + port);
+		HashMap<String, String> result = this.clientPI.connect(host, username, password, port);
+		if (result.get("OK").equals("Done")) {
+			isLogged = true;
+		}
+		return result;
+	}
 
 	public String upload(String pathClient, String pathServer) {
-		if (this.clientPI.getClientDTP() == null) {
+		if (!isLogged) {
 			HashMap<String, String> pairs = new HashMap<>();
 			pairs.put("status", "fail");
 			pairs.put("message", "Haven't login yet!");
@@ -93,19 +95,24 @@ public class ServerEventHanlder {
 	}
 
 	public void download(String pathClient, String pathServer) {
-		this.clientPI.getClientDTP().download(pathClient, pathServer);
+		if (isLogged) {
+			this.clientPI.getClientDTP().download(pathClient, pathServer);
+		}
 	}
 
 	public String logout() {
-		if (this.clientPI.getClientDTP() == null) {
+		if (!isLogged) {
 			HashMap<String, String> pairs = new HashMap<>();
 			pairs.put("status", "fail");
 			pairs.put("message", "Haven't login yet!");
 			return new Gson().toJson(pairs);
 		}
-
 		String res = this.clientPI.logout();
-
+		if (res.equals("success")) {
+			isLogged = false;
+			treeDirs.removeAll();
+			treeFilesFolders.removeAll();
+		}
 		return res;
 	}
 
@@ -140,6 +147,7 @@ public class ServerEventHanlder {
 				if (paths[i].toString().equals("/") == false)
 					curPath += paths[i];
 			}
+			tf_RemoteDir.setText(curPath);
 			Config.print("treeWillExpand parent: " + curPath);
 			showJTreeServerFilesFolders(curPath);
 		}
@@ -175,26 +183,30 @@ public class ServerEventHanlder {
 	public TreeSelectionListener handleTreeFilesFoldersSelection = new TreeSelectionListener() {
 		@Override
 		public void valueChanged(TreeSelectionEvent e) {
-			String curPath = "";
-			Config.print("treeWillExpand: " + e.getPath().toString());
-
-			curPath = getStringPath(e.getPath().getPath());
-			tf_RemoteFile.setText(curPath);
+			if (isLogged) {
+				String curPath = "";
+				Config.print("treeWillExpand1: " + e.getPath().toString());
+				curPath = getStringPath(e.getPath().getPath());
+				tf_RemoteFile.setText(curPath);
+			}
 		}
 	};
 
 	public TreeSelectionListener handleTreeDirsSelection = new TreeSelectionListener() {
 		@Override
 		public void valueChanged(TreeSelectionEvent e) {
-			String curPath = "";
-			Config.print("treeWillExpand: " + e.getPath().toString());
-			try {
-				curPath = getStringPath(e.getPath().getPath());
-				showJTreeServerFilesFolders(curPath);
-				tf_RemoteDir.setText(getStringPath(e.getPath().getPath()));
-				tf_RemoteFile.setText(getStringPath(e.getPath().getPath()));
-			} catch (Exception ex) {
-				Config.print("Tree cannot expand");
+			if (isLogged) {
+				String curPath = "";
+				Config.print("treeWillExpand2: " + e.getPath().toString());
+				try {
+					curPath = getStringPath(e.getPath().getPath());
+					Config.print("Path: " + curPath);
+					tf_RemoteDir.setText(curPath);
+					tf_RemoteFile.setText(curPath);
+					showJTreeServerFilesFolders(curPath);
+				} catch (Exception ex) {
+					Config.print("Tree dir cannot expand ");
+				}
 			}
 		}
 

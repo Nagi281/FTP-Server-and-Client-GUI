@@ -1,7 +1,7 @@
 package main;
 
 import controller.client.ClientPI;
-import view.client.MainClientGUI2;
+import view.GUI.MainClientGUI2;
 
 /**
  *

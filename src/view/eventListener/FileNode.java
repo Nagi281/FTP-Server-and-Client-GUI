@@ -1,4 +1,4 @@
-package view.client;
+package view.eventListener;
 
 import java.io.File;
 import java.util.Vector;

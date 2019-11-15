@@ -1,4 +1,4 @@
-package view.client;
+package view.eventListener;
 
 import controller.client.ClientPI;
 import com.google.gson.Gson;

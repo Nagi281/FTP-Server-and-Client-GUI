@@ -1,4 +1,4 @@
-package view.client;
+package view.GUI;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,17 +23,21 @@ import com.google.gson.Gson;
 
 import config.Config;
 import controller.client.ClientPI;
+import view.eventListener.ClientEventHandler;
+import view.eventListener.ServerEventHanlder;
+
 import java.awt.Font;
 
 public class MainClientGUI2 extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private ClientEventHandler actionClient;
 	private ServerEventHanlder actionServer;
+	private boolean isLoggedIn = false;
 
 	public MainClientGUI2(ClientPI clientPI) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		GUI();
-		EventListening();
+		eventListening();
 		if (Config.DEBUG) {
 			tf_Host.setText("localhost");
 			tf_Username.setText("admin");
@@ -103,7 +107,6 @@ public class MainClientGUI2 extends JFrame implements ActionListener {
 
 		btn_Logout = new JButton("Logout");
 		btn_Logout.setBounds(1000, 15, 97, 25);
-		btn_Logout.setVisible(false);
 		panel_Info.add(btn_Logout);
 
 		btn_TypeAscii = new JButton("ASCII");
@@ -126,6 +129,7 @@ public class MainClientGUI2 extends JFrame implements ActionListener {
 		panel_Status.add(sp_Status);
 
 		ta_Status = new JTextArea();
+		ta_Status.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		sp_Status.setViewportView(ta_Status);
 
 		JPanel panel_LocalDir = new JPanel();
@@ -162,8 +166,6 @@ public class MainClientGUI2 extends JFrame implements ActionListener {
 		panel_RemoteDir.add(lb_Remote);
 
 		tf_RemoteDir = new JTextField();
-		tf_RemoteDir.setEditable(false);
-		tf_RemoteDir.setColumns(10);
 		tf_RemoteDir.setBounds(111, 4, 415, 28);
 		panel_RemoteDir.add(tf_RemoteDir);
 
@@ -210,8 +212,6 @@ public class MainClientGUI2 extends JFrame implements ActionListener {
 		panel_RemoteFile.add(lblRemoteFile);
 
 		tf_RemoteFile = new JTextField();
-		tf_RemoteFile.setEditable(false);
-		tf_RemoteFile.setColumns(10);
 		tf_RemoteFile.setBounds(111, 4, 415, 28);
 		panel_RemoteFile.add(tf_RemoteFile);
 
@@ -236,7 +236,7 @@ public class MainClientGUI2 extends JFrame implements ActionListener {
 		setVisible(true);
 	}
 
-	private void EventListening() {
+	private void eventListening() {
 		btn_Connect.setActionCommand("Login");
 		btn_Connect.addActionListener(this);
 		btn_Logout.setActionCommand("Logout");
@@ -249,10 +249,16 @@ public class MainClientGUI2 extends JFrame implements ActionListener {
 		btn_Download.addActionListener(this);
 		btn_Upload.setActionCommand("Upload");
 		btn_Upload.addActionListener(this);
+		lockButton();
 	}
 
-	public static void main(String arg[]) {
-		new MainClientGUI2(new ClientPI());
+	public void lockButton() {
+		btn_Connect.setEnabled(!isLoggedIn);
+		btn_Logout.setEnabled(isLoggedIn);
+		btn_TypeAscii.setEnabled(isLoggedIn);
+		btn_TypeImage.setEnabled(isLoggedIn);
+		btn_Upload.setEnabled(isLoggedIn);
+		btn_Download.setEnabled(isLoggedIn);
 	}
 
 	@Override
@@ -297,16 +303,21 @@ public class MainClientGUI2 extends JFrame implements ActionListener {
 		if (value != null) {
 			ta_Status.append(">> Status: \t" + value + "\n");
 		} else {
+			isLoggedIn = true;
+			lockButton();
 			ta_Status.append(">> Status: \tConnect to host " + host + " successfull\n");
 			btn_Logout.setVisible(true);
 			btn_Connect.setEnabled(false);
+
 			// NOTE: Show folders and files from server
 			// Server know folder belong to which users?
+			tf_RemoteDir.setText("/");
 			tf_RemoteFile.setText("/");
 
 			actionServer.setTreeDirs(tree_RemoteDir);
 			actionServer.setTreeFilesFolders(tree_RemoteFile);
 			actionServer.setTextFieldRemoteFile(tf_RemoteFile);
+			actionServer.setTextFieldRemoteDir(tf_RemoteDir);
 			actionServer.initJTreeFilesFoldersServer(tree_RemoteFile);
 
 			actionServer.showJTreeServerDirs(tree_RemoteDir, "/");
@@ -357,10 +368,12 @@ public class MainClientGUI2 extends JFrame implements ActionListener {
 		String res = actionServer.logout();
 		if (res.equals("success")) {
 			ta_Status.append(">> Status: \t" + "Client logged out" + "\n");
+			tf_RemoteDir.setText("");
+			tf_RemoteFile.setText("");
 			tree_RemoteDir.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("root")));
 			tree_RemoteFile.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("root")));
-			btn_Connect.setEnabled(true);
-			btn_Logout.setEnabled(false);
+			isLoggedIn = false;
+			lockButton();
 		}
 	}
 

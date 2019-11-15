@@ -5,7 +5,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package view.client;
+package view.GUI;
 
 import java.util.HashMap;
 
@@ -13,6 +13,8 @@ import com.google.gson.Gson;
 
 import config.Config;
 import controller.client.ClientPI;
+import view.eventListener.ClientEventHandler;
+import view.eventListener.ServerEventHanlder;
 
 /**
  *
