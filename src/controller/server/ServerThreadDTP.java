@@ -36,7 +36,6 @@ public class ServerThreadDTP extends Thread {
 	private String user_session = null;
 	@SuppressWarnings("unused")
 	private String user_token = null;
-	public static int blockSize = 1024;
 
 	private enum transferType {
 		ASCII, BINARY
@@ -181,10 +180,10 @@ public class ServerThreadDTP extends Thread {
 				Config.print("Tranfering in Binary mode: .... ");
 				InputStream in = socket.getInputStream();
 				OutputStream out2 = new FileOutputStream(f);
-				byte[] bytes = new byte[blockSize];
+				byte[] bytes = new byte[Config.blockSize];
 				int count, index = 0, total = 0;
 				long size = Long.parseLong(length);
-				while ((total <= size - blockSize) && (count = in.read(bytes)) > 0) {
+				while ((total <= size - Config.blockSize) && (count = in.read(bytes)) > 0) {
 					out2.write(bytes, 0, count);
 					Config.print(index++ + " " + count);
 					total += count;
@@ -248,7 +247,7 @@ public class ServerThreadDTP extends Thread {
 			FileInputStream fin = new FileInputStream(f);
 			if (transferMode == transferType.BINARY) {
 				Config.print("Uploading in Binary mode: .... ");
-				byte[] bytes = new byte[blockSize];
+				byte[] bytes = new byte[Config.blockSize];
 				InputStream in = new FileInputStream(f);
 				OutputStream out = socket.getOutputStream();
 				int count, index = 0;

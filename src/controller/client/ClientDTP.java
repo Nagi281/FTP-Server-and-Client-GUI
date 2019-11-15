@@ -36,7 +36,6 @@ public class ClientDTP {
 	// private BufferedInputStream bis = null;
 	String user_session = null;
 	String user_token = null;
-	public static int blockSize = 1024;
 
 	private enum transferType {
 		ASCII, BINARY
@@ -142,7 +141,7 @@ public class ClientDTP {
 			File f = new File(pathClient);
 			// long length = (long) Math.ceil((double) f.length() / blockSize);
 			long length = f.length();
-			if (length > 1024 * blockSize && transferMode == transferType.ASCII) {
+			if (length > 1024 * Config.blockSize && transferMode == transferType.ASCII) {
 				pairs.put("status", "fail");
 				pairs.put("message", "File too large for ASCII, Change to Binary!");
 				return new Gson().toJson(pairs);
@@ -156,7 +155,7 @@ public class ClientDTP {
 
 			if (transferMode == transferType.BINARY) {
 				Config.print("Uploading in Binary mode: .... ");
-				byte[] bytes = new byte[blockSize];
+				byte[] bytes = new byte[Config.blockSize];
 				InputStream in = new FileInputStream(f);
 				OutputStream out = clientSocket.getOutputStream();
 
@@ -236,10 +235,10 @@ public class ClientDTP {
 				Config.print("Downloading in Binary mode: .... ");
 				InputStream in = clientSocket.getInputStream();
 				OutputStream out2 = new FileOutputStream(f);
-				byte[] bytes = new byte[blockSize];
+				byte[] bytes = new byte[Config.blockSize];
 				int count, index = 0, total = 0;
 				long size = Long.parseLong(fileInfo[1]);
-				while ((total <= size - blockSize) && (count = in.read(bytes)) > 0) {
+				while ((total <= size - Config.blockSize) && (count = in.read(bytes)) > 0) {
 					out2.write(bytes, 0, count);
 					Config.print(index++ + " " + count);
 					total += count;

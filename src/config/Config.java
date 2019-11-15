@@ -14,6 +14,8 @@ public class Config {
 	public static String DATABASE_USER = "root";
 	public static String DATABASE_PASS = "";
 	public static String DATABASE_DB = "dut__dacsnm";
+	
+	public static int blockSize = 1024;
 
 	public static void print(String str) {
 		if (DEBUG == true) {
