@@ -9,15 +9,15 @@ import controller.server.ServerDTP;
 import controller.server.ServerPI;
 
 /**
- *
  * @author Administrator
  */
 public class MainServer {
 	public static void main(String[] args) {
 		try {
 			InetAddress myHost = InetAddress.getLocalHost();
-			System.out.println(myHost.getHostAddress());
-			System.out.println(myHost.getHostName());
+			Config.print("Server is running on: "+ myHost.getHostAddress());
+			Config.print("Server's Name"
+					+ ": "+ myHost.getHostName());
 			ServerPI serverPI = new ServerPI(Config.PORT_PI);
 			ServerDTP serverDTP = new ServerDTP(Config.PORT_DTP);
 			new Thread() {

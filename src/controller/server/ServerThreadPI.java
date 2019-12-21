@@ -61,7 +61,11 @@ public class ServerThreadPI extends Thread {
 				resPairs.put("status", "fail");
 				resPairs.put("message", "Username/Password incorrect!");
 				ServerPI.write(bw, new Gson().toJson(resPairs));
-				socket.close();
+				this.br.close();
+				this.bw.flush();
+				this.bw.close();
+				this.socket.close();
+				return;
 			}
 
 			while (true) {

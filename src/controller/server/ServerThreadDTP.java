@@ -75,6 +75,10 @@ public class ServerThreadDTP extends Thread {
 					res = isFolder(payload);
 					break;
 				}
+				case "isExist": {
+					res = isExist(payload);
+					break;
+				}
 
 				case "upload": {
 					res = upload(reqPairs.get("filename"), reqPairs.get("pathServer"), reqPairs.get("length"));
@@ -99,9 +103,9 @@ public class ServerThreadDTP extends Thread {
 					break;
 				}
 				}
-				if (!res.equals("logged out")) {
+				if (!res.equals("logged out") && !res.equals("canceled")) {
 					ServerPI.write(bw, res);
-				} else {
+				} else if (res.equals("logged out")) {
 					break;
 				}
 			}
@@ -156,6 +160,12 @@ public class ServerThreadDTP extends Thread {
 
 	private String isFile(String path) {
 		boolean res = FilesUtil.isFile(Config.PATH_UPLOAD + "/" + user_session + path);
+		Config.print("DTP: isFile: " + Config.PATH_UPLOAD + "/" + user_session + path + ": " + res);
+		return res ? "success" : "fail";
+	}
+
+	private String isExist(String path) {
+		boolean res = FilesUtil.isExist(Config.PATH_UPLOAD + "/" + user_session + path);
 		Config.print("DTP: isFile: " + Config.PATH_UPLOAD + "/" + user_session + path + ": " + res);
 		return res ? "success" : "fail";
 	}
@@ -242,6 +252,11 @@ public class ServerThreadDTP extends Thread {
 			long len = f.length();
 			// NOTE: Send file name to client save
 			common_util.write(bw, f.getName() + ":" + len);
+
+			String status = br.readLine();
+			if (status.equals("canceled")) {
+				return "canceled";
+			}
 
 			// NOTE: Send file
 			FileInputStream fin = new FileInputStream(f);

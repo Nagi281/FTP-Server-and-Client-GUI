@@ -1,6 +1,8 @@
 package view.eventListener;
 
 import controller.client.ClientPI;
+import model.bean.FileNode;
+
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.IOException;

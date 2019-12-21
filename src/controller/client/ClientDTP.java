@@ -118,6 +118,18 @@ public class ClientDTP {
 		return res.equals("success");
 	}
 
+	private boolean checkPathServerIsExist(String pathServer, String pathClient) throws IOException {
+		File f = new File(pathClient);
+		Config.print("ClientDTP checkPathServerIsExist " + f.getName());
+		HashMap<String, String> pairs = new HashMap<>();
+		pairs.put("action", "isExist");
+		pairs.put("payload", pathServer + "/" + f.getName());
+
+		common_util.write(bw, new Gson().toJson(pairs));
+		String res = br.readLine();
+		return res.equals("success");
+	}
+
 	public String upload(String pathClient, String pathServer) {
 		HashMap<String, String> pairs = new HashMap<>();
 
@@ -135,6 +147,12 @@ public class ClientDTP {
 			if (!checkPathServerIsFolder(pathServer)) {
 				pairs.put("status", "fail");
 				pairs.put("message", "Path server isn't a folder!");
+				return new Gson().toJson(pairs);
+			}
+
+			if (checkPathServerIsExist(pathServer, pathClient)) {
+				pairs.put("status", "fail");
+				pairs.put("message", "There's a same file exists on Server");
 				return new Gson().toJson(pairs);
 			}
 
@@ -229,7 +247,13 @@ public class ClientDTP {
 			Config.print(info);
 			String[] fileInfo = info.split(":");
 			File f = new File(pathClient + "/" + fileInfo[0]);
-
+			if (f.exists()) {
+				common_util.write(bw, "canceled");
+				pairs.put("status", "fail");
+				pairs.put("message", "There's a same file on client");
+				return new Gson().toJson(pairs);
+			}
+			common_util.write(bw, "ok");
 			FileOutputStream fout = new FileOutputStream(f);
 			if (transferMode == transferType.BINARY) {
 				Config.print("Downloading in Binary mode: .... ");

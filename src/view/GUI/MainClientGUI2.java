@@ -2,6 +2,8 @@ package view.GUI;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.HashMap;
 
 import javax.swing.ImageIcon;
@@ -232,7 +234,8 @@ public class MainClientGUI2 extends JFrame implements ActionListener {
 		btn_Download.setBounds(535, 609, 60, 47);
 		getContentPane().add(btn_Download);
 
-		setSize(1160, 800);
+		setResizable(false);
+		setSize(1145, 777);
 		setVisible(true);
 	}
 
@@ -250,6 +253,22 @@ public class MainClientGUI2 extends JFrame implements ActionListener {
 		btn_Upload.setActionCommand("Upload");
 		btn_Upload.addActionListener(this);
 		lockButton();
+
+		this.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				try {
+					if (isLoggedIn) {
+						btnLogoutActionPerformed();
+					}
+					Thread.sleep(50);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				} finally {
+					System.exit(0);
+				}
+			}
+		});
+
 	}
 
 	public void lockButton() {
@@ -339,7 +358,7 @@ public class MainClientGUI2 extends JFrame implements ActionListener {
 	@SuppressWarnings("unchecked")
 	private void btnUploadActionPerformed() {
 		String pathClient = tf_LocalFile.getText();
-		String pathServer = tf_RemoteFile.getText();
+		String pathServer = tf_RemoteDir.getText();
 		Config.print("UPLOAD: " + pathClient + " -> " + pathServer);
 
 		ta_Status.append(">> Status: \t" + "Checking for upload...\n");

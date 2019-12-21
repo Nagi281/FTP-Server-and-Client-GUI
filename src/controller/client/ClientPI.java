@@ -54,7 +54,7 @@ public class ClientPI {
 			this.br = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			this.bw = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
 
-			// NOTE: Send username /password to server check login
+			// NOTE: Send username/password to server check login
 			verifyLogin(username, password);
 
 			// NOTE: Create Client DTP to handle file transfer

@@ -37,6 +37,11 @@ public class FilesUtil {
 		File f = new File(path);
 		return f.isFile();
 	}
+	
+	public static boolean isExist(String path) {
+		File f = new File(path);
+		return f.exists();
+	}
 
 	/**
 	 * List all the files under a directory

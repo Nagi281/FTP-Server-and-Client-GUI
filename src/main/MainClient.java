@@ -4,7 +4,6 @@ import controller.client.ClientPI;
 import view.GUI.MainClientGUI2;
 
 /**
- *
  * @author Administrator
  */
 public class MainClient {

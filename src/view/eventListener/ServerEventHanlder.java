@@ -21,7 +21,6 @@ import config.Config;
  */
 public class ServerEventHanlder {
 	private ClientPI clientPI;
-	@SuppressWarnings("unused")
 	private JTree treeDirs;
 	private JTree treeFilesFolders;
 	private JTextField tf_RemoteDir;
@@ -74,8 +73,9 @@ public class ServerEventHanlder {
 		}
 		Config.print(host + " " + username + " " + password + " " + port);
 		HashMap<String, String> result = this.clientPI.connect(host, username, password, port);
-		if (result.get("OK").equals("Done")) {
-			isLogged = true;
+		if (result.get("OK") != null) {
+			if (result.get("OK").equals("Done"))
+				isLogged = true;
 		}
 		return result;
 	}

@@ -4,99 +4,116 @@ import java.io.File;
 import java.util.Vector;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
-import config.Config;;
-
+import config.Config;
 
 public class FileNode {
 
-    protected File m_file;
+	protected File m_file;
 
-    public FileNode(File file) { m_file = file; } 
-    public FileNode() {}
+	public FileNode(File file) {
+		m_file = file;
+	}
 
-    public File getFile() {
-        return m_file;
-    }
+	public FileNode() {
+	}
 
-    public String toString() {
-        return m_file.getName().length() > 0 ? m_file.getName()
-                : m_file.getPath();
-    }
+	public File getFile() {
+		return m_file;
+	}
 
-    public boolean expand(DefaultMutableTreeNode parent) {
-        // NOTE: Folder without child
-        if (parent.getChildCount() == 0) { return false; }
-        
-        DefaultMutableTreeNode flag = (DefaultMutableTreeNode) parent.getFirstChild();
-        if (flag == null) { return false; }
-        Object obj = flag.getUserObject();
-        
-        // NOTE: Retrieving
-        if ((obj instanceof String) == false || obj.equals(Config.RETRIEVING_DATA) == false) {
-            return false;      
-        }
-        
-        // NOTE: Remove flag: CONFIG.RETRIEVING_DATA
-        parent.removeAllChildren();
+	public String toString() {
+		return m_file.getName().length() > 0 ? m_file.getName() : m_file.getPath();
+	}
 
-        File[] files = listFiles();
-        if (files == null) { return true; }
-        Vector<FileNode> v = new Vector<>();
+	public boolean expand(DefaultMutableTreeNode parent) {
+		// NOTE: Folder without child
+		if (parent.getChildCount() == 0) {
+			return false;
+		}
 
-        for (int k = 0; k < files.length; k++) {
-            File f = files[k];
-            if (!(f.isDirectory())) { continue; }
-            
-            FileNode newNode = new FileNode(f);
-            boolean isAdded = false;
-            
-            // NOTE: Sort follow alphabet
-            for (int i = 0; i < v.size(); i++) {
-                FileNode nd = (FileNode) v.elementAt(i);
-                if (newNode.compareTo(nd) < 0) {
-                    v.insertElementAt(newNode, i);
-                    isAdded = true;
-                    break;
-                }
-            }
-            if (!isAdded) { v.addElement(newNode); }
-        }
+		DefaultMutableTreeNode flag = (DefaultMutableTreeNode) parent.getFirstChild();
+		if (flag == null) {
+			return false;
+		}
+		Object obj = flag.getUserObject();
 
-        for (int i = 0; i < v.size(); i++) {
-            FileNode nd = (FileNode) v.elementAt(i);
-            DefaultMutableTreeNode node = new DefaultMutableTreeNode(nd);
-            parent.add(node);
+		// NOTE: Retrieving
+		if ((obj instanceof String) == false || obj.equals(Config.RETRIEVING_DATA) == false) {
+			return false;
+		}
 
-            if (nd.hasSubDirs()) {
-                node.add(new DefaultMutableTreeNode(new String(Config.RETRIEVING_DATA)));
-            }
-        }
+		// NOTE: Remove flag: CONFIG.RETRIEVING_DATA
+		parent.removeAllChildren();
 
-        return true;
-    }
+		File[] files = listFiles();
+		if (files == null) {
+			return true;
+		}
+		Vector<FileNode> v = new Vector<>();
 
-    public boolean hasSubDirs() {
-        File[] files = listFiles();
-        if (files == null) { return false; }
-        for (int k = 0; k < files.length; k++) {
-            if (files[k].isDirectory()) { return true; }
-        }
-        return false;
-    }
+		for (int k = 0; k < files.length; k++) {
+			File f = files[k];
+			if (!(f.isDirectory())) {
+				continue;
+			}
 
-    public int compareTo(FileNode toCompare) {
-        return m_file.getName().compareToIgnoreCase(toCompare.m_file.getName());
-    }
+			FileNode newNode = new FileNode(f);
+			boolean isAdded = false;
 
-    public File[] listFiles() {
-        if (!m_file.isDirectory()) { return null; }
-        try {
-            return m_file.listFiles();
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null,
-                    "Error reading directory " + m_file.getAbsolutePath(),
-                    "Warning", JOptionPane.WARNING_MESSAGE);
-            return null;
-        }
-    }
+			// NOTE: Sort follow alphabet
+			for (int i = 0; i < v.size(); i++) {
+				FileNode nd = (FileNode) v.elementAt(i);
+				if (newNode.compareTo(nd) < 0) {
+					v.insertElementAt(newNode, i);
+					isAdded = true;
+					break;
+				}
+			}
+			if (!isAdded) {
+				v.addElement(newNode);
+			}
+		}
+
+		for (int i = 0; i < v.size(); i++) {
+			FileNode nd = (FileNode) v.elementAt(i);
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(nd);
+			parent.add(node);
+
+			if (nd.hasSubDirs()) {
+				node.add(new DefaultMutableTreeNode(new String(Config.RETRIEVING_DATA)));
+			}
+		}
+
+		return true;
+	}
+
+	public boolean hasSubDirs() {
+		File[] files = listFiles();
+		if (files == null) {
+			return false;
+		}
+		for (int k = 0; k < files.length; k++) {
+			if (files[k].isDirectory()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public int compareTo(FileNode toCompare) {
+		return m_file.getName().compareToIgnoreCase(toCompare.m_file.getName());
+	}
+
+	public File[] listFiles() {
+		if (!m_file.isDirectory()) {
+			return null;
+		}
+		try {
+			return m_file.listFiles();
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(null, "Error reading directory " + m_file.getAbsolutePath(), "Warning",
+					JOptionPane.WARNING_MESSAGE);
+			return null;
+		}
+	}
 }
